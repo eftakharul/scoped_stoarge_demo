@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "test";
     private ActivityMainBinding binding;
     private static final int READ_EXTERNAL_STORAGE_PERMISSION_CODE = 123;
-    private static final int WRITE_EXTERNAL_STORAGE_PERMISSION_CODE = 1;
     private static final int PERMISSION_ALL = 124;
     private static final String[] PERMISSIONS = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @RequiresApi(api = Build.VERSION_CODES.R)
-    private void askManageExternalStoragePermission(Context context) {
+    private void askManageExternalStoragePermission() {
         try {
             Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
             intent.addCategory("android.intent.category.DEFAULT");
@@ -73,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivity(intent);
         }
     }
-
 
     private void getRequiredPermission(Context context) {
         if (!hasPermissions(context, PERMISSIONS)) {
@@ -120,104 +118,115 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void writeImage() {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                InputStream in = getResources().openRawResource(R.raw.demo_image);
-                Bitmap wbmp = BitmapFactory.decodeStream(in);
-                if (wbmp != null)
-                    Utility.writeImage(MainActivity.this, wbmp, Constants.IMAGE_NAME, Constants.IMAGE_EXTENSION);
-            }
+        AsyncTask.execute(() -> {
+            InputStream in = getResources().openRawResource(R.raw.demo_image);
+            Bitmap bmp = BitmapFactory.decodeStream(in);
+            if (bmp != null)
+                Utility.writeImage(MainActivity.this, bmp, Constants.IMAGE_NAME, Constants.IMAGE_EXTENSION);
         });
-
     }
 
     private void readImage() {
-        Bitmap rbmp = Utility.readImageScoped(this, Constants.IMAGE_NAME + "." + Constants.IMAGE_EXTENSION);
-        if (rbmp == null) Log.e(TAG, "initUI: null image returned");
-        binding.ownImageView.setImageBitmap(rbmp);
+        Bitmap bmp = Utility.readImageScoped(this, Constants.IMAGE_NAME + "." + Constants.IMAGE_EXTENSION);
+        if (bmp == null) Log.e(TAG, "initUI: null image returned");
+        binding.ownImageView.setImageBitmap(bmp);
         binding.ownImageView.setVisibility(View.VISIBLE);
     }
 
+    private void readOtherImage() {
+        Bitmap bmp = Utility.readOtherImageScoped(this);
+        if (bmp == null) Log.e(TAG, "initUI: null image returned");
+        binding.otherImageView.setImageBitmap(bmp);
+        binding.otherImageView.setVisibility(View.VISIBLE);
+    }
+
+    private void writeAudio() {
+        AsyncTask.execute(() -> {
+            InputStream audioStream = getResources().openRawResource(R.raw.demo);
+            Utility.writeAudio(MainActivity.this, Constants.SONG_NAME, audioStream);
+        });
+    }
+
+    private void readAudio() {
+        String[] res = Utility.readAudioScoped(this, Constants.SONG_NAME + "." + Constants.SONG_EXTENSION);
+        if (res != null)
+            binding.musicInfoTextView.setText("name :" + res[0] + "\nalbum: " + res[1] + "\nartist: " + res[2]);
+    }
+
+    private void readOtherAudio() {
+        String[] oRes = Utility.readOtherAudioScoped(this);
+        if (oRes != null)
+            binding.otherMusicInfoTextView.setText("name :" + oRes[0] + "\nalbum: " + oRes[1] + "\nartist: " + oRes[2]);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void writeFile() {
+        AsyncTask.execute(() -> Utility.saveFileScoped(MainActivity.this, "text written from demo application", Constants.FILE_NAME, Constants.FILE_EXTENSION));
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void readFile() {
+        String contents = Utility.readFileScoped(this, Constants.FILE_NAME + "." + Constants.FILE_EXTENSION);
+        Log.e(TAG, "read file returned " + contents);
+        binding.fileTextView.setText(contents);
+    }
+
+    private void handleManagePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (Environment.isExternalStorageManager()) {
+                getRequiredPermission(this);
+            } else {
+                askManageExternalStoragePermission();
+            }
+        } else {
+            getRequiredPermission(this);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     public void onClick(View view) {
 
         switch (view.getId()) {
             case R.id.write_picture_button:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    writeImage();
-                } else {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, WRITE_EXTERNAL_STORAGE_PERMISSION_CODE);
-                    } else {
-                        writeImage();
-                    }
-                }
+                writeImage();
                 break;
             case R.id.read_picture_button:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    readImage();
-                } else {
-                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_CODE);
-                    } else {
-                        readImage();
-                    }
-                }
+                readImage();
                 break;
             case R.id.read_other_picture_button:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_CODE);
                 } else {
-
-                    Bitmap bmp = Utility.readOtherImageScoped(this);
-                    if (bmp == null) Log.e(TAG, "initUI: null image returned");
-                    binding.otherImageView.setImageBitmap(bmp);
-                    binding.otherImageView.setVisibility(View.VISIBLE);
+                    readOtherImage();
                 }
                 break;
 
             case R.id.write_music_button:
-                InputStream audioStream = getResources().openRawResource(R.raw.demo);
-                Utility.writeAudio(this, Constants.SONG_NAME, audioStream);
+                writeAudio();
                 break;
             case R.id.read_music_button:
-                String[] res = Utility.readAudioScoped(this, Constants.SONG_NAME + "." + Constants.SONG_EXTENSION);
-                if (res != null)
-                    binding.musicInfoTextView.setText("name :" + res[0] + "\nalbum: " + res[1] + "\nartist: " + res[2]);
+                readAudio();
                 break;
             case R.id.read_other_music_button:
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, READ_EXTERNAL_STORAGE_PERMISSION_CODE);
                 } else {
-                    String[] oRes = Utility.readOtherAudioScoped(this);
-                    if (oRes != null)
-                        binding.otherMusicInfoTextView.setText("name :" + oRes[0] + "\nalbum: " + oRes[1] + "\nartist: " + oRes[2]);
+                    readOtherAudio();
                 }
                 break;
             case R.id.write_file_button:
-                Utility.saveFileScoped(this, "text written from demo application", Constants.FILE_NAME, Constants.FILE_EXTENSION);
+                writeFile();
                 break;
             case R.id.read_file_button:
-                String contents = Utility.readFileScoped(this, Constants.FILE_NAME + "." + Constants.FILE_EXTENSION);
-                Log.e(TAG, "read file retuned " + contents);
-                binding.fileTextView.setText(contents);
+                readFile();
                 break;
             case R.id.manage_all_files_button:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (Environment.isExternalStorageManager()) {
-                        getRequiredPermission(this);
-                    } else {
-                        askManageExternalStoragePermission(this);
-                    }
-                } else {
-                    getRequiredPermission(this);
-                }
+                handleManagePermission();
                 break;
 
             default:

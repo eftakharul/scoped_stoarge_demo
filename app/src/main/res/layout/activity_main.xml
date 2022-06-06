@@ -12,7 +12,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <Button
                 android:id="@+id/write_picture_button"
@@ -22,7 +22,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:padding="@dimen/button_padding"
-                android:text="Write Picture"
+                android:text="@string/write_picture"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -35,7 +35,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:padding="@dimen/button_padding"
-                android:text="Read Picture"
+                android:text="@string/read_picture"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/write_picture_button" />
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/button_margin"
                 android:padding="@dimen/button_padding"
-                android:text="Write Music"
+                android:text="@string/write_music"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/own_image_view" />
@@ -69,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/button_margin"
                 android:padding="@dimen/button_padding"
-                android:text="Read Music"
+                android:text="@string/read_music"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/write_music_button" />
@@ -92,7 +92,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:padding="@dimen/button_padding"
-                android:text="Read Other Picture"
+                android:text="@string/read_other_picture"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/music_info_text_view" />
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/button_margin"
                 android:padding="@dimen/button_padding"
-                android:text="Read Other Music"
+                android:text="@string/read_other_music"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/other_image_view" />
@@ -136,7 +136,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/button_margin"
                 android:padding="@dimen/button_padding"
-                android:text="Write File"
+                android:text="@string/write_file"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/other_music_info_text_view" />
@@ -147,7 +147,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/button_margin"
                 android:padding="@dimen/button_padding"
-                android:text="Read file"
+                android:text="@string/read_file"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/write_file_button" />
@@ -168,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/button_margin"
                 android:padding="@dimen/button_padding"
-                android:text="Manage All Files access"
+                android:text="@string/manage_all_files_access"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/file_text_view" />

@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">storage</string>
+    <string name="write_music">Write Music</string>
+    <string name="read_music">Read Music</string>
+    <string name="read_picture">Read Picture</string>
+    <string name="write_picture">Write Picture</string>
+    <string name="read_other_picture">Read Other Picture</string>
+    <string name="read_other_music">Read Other Music</string>
+    <string name="write_file">Write File</string>
+    <string name="read_file">Read file</string>
+    <string name="manage_all_files_access">Manage All Files access</string>
 </resources>

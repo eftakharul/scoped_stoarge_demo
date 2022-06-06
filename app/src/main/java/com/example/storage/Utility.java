@@ -16,6 +16,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -67,29 +68,17 @@ public class Utility {
     }
 
     //Method to save an image
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     static void writeImage(Context context, @NonNull Bitmap bitmap, @NonNull String name, String extension) {
         OutputStream fos;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContentResolver resolver = context.getContentResolver();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name + "." + extension);
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/" + extension);
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + context.getPackageName());
-                Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                fos = resolver.openOutputStream(Objects.requireNonNull(imageUri));
-            } else {
-                String imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-                File imagesDirFile = new File(imagesDir);
-
-                File packageDir = new File(imagesDirFile, context.getPackageName());
-                if (!packageDir.exists()) {
-                    packageDir.mkdir();
-                }
-                File image = new File(packageDir, name + "." + extension);
-                if (!image.exists()) image.createNewFile();
-                fos = new FileOutputStream(image);
-            }
+            ContentResolver resolver = context.getContentResolver();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name + "." + extension);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/" + extension);
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + context.getPackageName());
+            Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            fos = resolver.openOutputStream(Objects.requireNonNull(imageUri));
             bitmap.compress(getImageFormat(extension), 100, fos);
             Objects.requireNonNull(fos).close();
         } catch (Exception e) {
@@ -98,6 +87,7 @@ public class Utility {
     }
 
     //method to read a file
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     static String readFileScoped(Context context, String name) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = MediaStore.Files.getContentUri("external");
@@ -140,8 +130,6 @@ public class Utility {
         ContentResolver cr = context.getContentResolver();
         Uri uri = MediaStore.Audio.Media.getContentUri("external");
 
-        // every column, although that is huge waste, you probably need
-        // BaseColumns.DATA (the path) only.
         String[] projection = new String[]{
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DISPLAY_NAME,
@@ -261,22 +249,18 @@ public class Utility {
     }
 
     //method to save a file
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     static void saveFileScoped(Context context, String content, @NonNull String name, @NonNull String extension) {
         OutputStream fos;
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                ContentResolver resolver = context.getContentResolver();
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name + "." + extension);
-                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/" + extension);
-                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + File.separator + context.getPackageName());
-                Uri fileUri = resolver.insert(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), contentValues);
-                fos = resolver.openOutputStream(Objects.requireNonNull(fileUri));
-            } else {
-                String filesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).toString() + File.separator + context.getPackageName();
-                File file = new File(filesDir, name + "." + extension);
-                fos = new FileOutputStream(file);
-            }
+
+            ContentResolver resolver = context.getContentResolver();
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, name + "." + extension);
+            contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "application/" + extension);
+            contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + File.separator + context.getPackageName());
+            Uri fileUri = resolver.insert(MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY), contentValues);
+            fos = resolver.openOutputStream(Objects.requireNonNull(fileUri));
             fos.write(content.getBytes(StandardCharsets.UTF_8));
             Objects.requireNonNull(fos).close();
         } catch (Exception e) {
